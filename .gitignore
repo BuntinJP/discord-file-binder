@@ -173,3 +173,13 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
+
+
+
+
+
+# me
+
+data/*
+!data/.gitkeep
+
