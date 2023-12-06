@@ -50,14 +50,11 @@ client.on(Events.InteractionCreate, interaction => {
 
 // message
 client.on(Events.MessageCreate, async message => {
-  console.log(message);
-
-  message.reply('World!');
-  /*   if (message.author.bot || message.attachments.size === 0) return;
-    if (!checkChannelId(message.channelId)) return;
-    const urls = await saveAttachmentIntoDataDir(message.attachments, dataDir);
-    const out = `${ urls.join('\n') }\nSaved ${ urls.length } attachments.`;
-    message.reply(out); */
+  if (message.author.bot || message.attachments.size === 0) return;
+  if (!checkChannelId(message.channelId)) return;
+  const urls = await saveAttachmentIntoDataDir({ attachments: message.attachments, dataDir, URL_PRESET: Bun.env.URL_PRESET });
+  const out = `${ urls.join('\n') }\nSaved ${ urls.length } attachments.`;
+  message.reply(out);
 });
 
 await client.login(token);

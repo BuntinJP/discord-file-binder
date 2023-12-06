@@ -1,26 +1,41 @@
 import fs from 'fs';
 import { BotData } from './types';
 import { Attachment, Collection } from 'discord.js';
+import path from 'path';
 //Collection<string, Attachment>
 
 type Attachments = Collection<string, Attachment>;
 
-const resolveFilename = (dataDir: string, key: string): string => {
-  const path = `${ dataDir }/${ key }`;
-  if (!fs.existsSync(path)) {
-    const filename = key.split('.')[0];
-    const ext = key.split('.')[-1];
-    return `${ dataDir }/${ filename }-${ Date.now() }.${ ext }`;
+const resolveFilename = (dataDir: string, filename: string): string => {
+  let filepath = path.join(dataDir, filename);
+  if (fs.existsSync(filepath)) {
+    const { basename, ext } = parseFilename(filename);
+    filepath = path.join(dataDir, `${ basename }-${ Date.now().toString() }.${ ext }`);//TODOここの重複は一旦無視
   }
-  return path;
+  return filepath;
 }
 
-export const saveAttachmentIntoDataDir = async (attachments: Attachments, dataDir: string) => {
-  const results = attachments.map(async (attachment, key) => {
+const parseFilename = (filename: string): { basename: string, ext: string } => {
+  const parts = filename.split('.');
+  const ext = parts.pop() || '???';
+  const basename = parts.join('.');
+  return { basename, ext };
+}
+
+export const saveAttachmentIntoDataDir = async (option: { attachments: Attachments, dataDir: string, URL_PRESET?: string }) => {
+  const { attachments, dataDir, URL_PRESET } = option;
+  const results = attachments.map(async (attachment) => {
+    const filename = attachment.name;
+    const filepath = resolveFilename(dataDir, filename);
     const buffer = await (await fetch(attachment.url)).arrayBuffer();
-    const filepath = resolveFilename(dataDir, key);
     fs.writeFileSync(filepath, buffer);
-    return filepath;
+    if (!URL_PRESET) {
+      return filepath;
+    }
+    const fullURL = new URL(URL_PRESET);
+    //add filename with ext
+    fullURL.pathname += path.basename(filepath);
+    return fullURL.toString();
   });
   return Promise.all(results);
 };
