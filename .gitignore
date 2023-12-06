@@ -183,3 +183,5 @@ dist
 data/*
 !data/.gitkeep
 
+dist/*
+!dist/.gitkeep
