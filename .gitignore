@@ -185,3 +185,5 @@ data/*
 
 dist/*
 !dist/.gitkeep
+
+bot_data.json

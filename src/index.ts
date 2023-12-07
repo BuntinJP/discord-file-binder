@@ -52,8 +52,8 @@ client.on(Events.InteractionCreate, interaction => {
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot || message.attachments.size === 0) return;
   if (!checkChannelId(message.channelId)) return;
-  const urls = await saveAttachmentIntoDataDir({ attachments: message.attachments, dataDir, URL_PRESET: Bun.env.URL_PRESET });
-  const out = `${ urls.join('\n') }\nSaved ${ urls.length } attachments.`;
+  const results = await saveAttachmentIntoDataDir({ attachments: message.attachments, dataDir, URL_PRESET: Bun.env.URL_PRESET });
+  const out = `${ results.map(result=>`[${result.name}](<${result.url}>)`).join('\n') }`;
   message.reply(out);
 });
 

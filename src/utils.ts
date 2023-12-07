@@ -10,7 +10,7 @@ const resolveFilename = (dataDir: string, filename: string): string => {
   let filepath = path.join(dataDir, filename);
   if (fs.existsSync(filepath)) {
     const { basename, ext } = parseFilename(filename);
-    filepath = path.join(dataDir, `${ basename }-${ Date.now().toString() }.${ ext }`);//TODOここの重複は一旦無視
+    filepath = path.join(dataDir, `${basename}-${Date.now().toString()}.${ext}`);//TODOここの重複は一旦無視
   }
   return filepath;
 }
@@ -30,12 +30,10 @@ export const saveAttachmentIntoDataDir = async (option: { attachments: Attachmen
     const buffer = await (await fetch(attachment.url)).arrayBuffer();
     fs.writeFileSync(filepath, buffer);
     if (!URL_PRESET) {
-      return filepath;
+      return { url: filepath, name: filename };
     }
-    const fullURL = new URL(URL_PRESET);
-    //add filename with ext
-    fullURL.pathname += path.basename(filepath);
-    return fullURL.toString();
+    const fullURL = URL_PRESET + '/' + filepath;
+    return { url: fullURL, name: filename };
   });
   return Promise.all(results);
 };
@@ -71,6 +69,6 @@ export const removeMonitor = (id: string) => {
 
 export const getAvailableChannels = () => {
   const ids = getIds();
-  const message = `Now monitoring channels \n ${ ids.map(id => `<#${ id }>`).join('\n') }`;
+  const message = `Now monitoring channels \n ${ids.map(id => `<#${id}>`).join('\n')}`;
   return message;
 }
